@@ -1,4 +1,5 @@
 @use 'sass:map';
+@use '../../tools' as mixin;
 
 /**
  * The field component handles form fields’ layout and ancillary elements such as error messages and help text.
@@ -45,7 +46,7 @@
 }
 
 .w-field__wrapper {
-  @include max-form-width();
+  @include mixin.max-form-width();
   // This is primarily helpful to add margins between fields, but fields can often
   // be wrapped into groups (for example a row), so it’s safer to add a margin regardless
   // of what the next element is.

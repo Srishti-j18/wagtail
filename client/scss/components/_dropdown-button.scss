@@ -2,6 +2,8 @@
 $separator: 1px solid theme('colors.white-15');
 $radius: theme('borderRadius.sm');
 
+@use '../tools' as mixin;
+
 .w-dropdown-button {
   // Cosmetic details based on live tooltip placement,
   // implemented CSS-only by using Tippy.js `data-placement` and `:has`.
@@ -89,7 +91,7 @@ $radius: theme('borderRadius.sm');
 
 // Use a generic selector to support all types of links / buttons.
 .w-dropdown-button .w-dropdown__content :is(a, button) {
-  @include show-focus-outline-inside();
+  @include mixin.show-focus-outline-inside();
   height: auto;
   min-height: $text-input-height;
   margin: 0;

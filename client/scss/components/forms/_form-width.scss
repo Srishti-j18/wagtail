@@ -1,8 +1,11 @@
+@use '../../settings' as variable;
+@use '../../tools' as mixin;
+
 .w-form-width {
-  @include max-form-width();
+  @include mixin.max-form-width();
 }
 
-@include media-breakpoint-up(md) {
+@include mixin.media-breakpoint-up(md) {
   .minimap-open {
     .w-form-width {
       max-width: theme('width.[4/5]');

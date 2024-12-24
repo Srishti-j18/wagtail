@@ -1,14 +1,15 @@
 @use 'sass:math';
+@use '../tools' as mixin;
 
 .footer {
-  @include transition(bottom 0.5s ease 1s);
-  @include row();
+  @include mixin.transition(bottom 0.5s ease 1s);
+  @include mixin.row();
   margin-top: $mobile-nice-padding;
   margin-inline-start: $mobile-nice-padding;
   margin-inline-end: $mobile-nice-padding;
   z-index: 20;
 
-  @include media-breakpoint-up(sm) {
+  @include mixin.media-breakpoint-up(sm) {
     margin-top: 0;
     margin-inline-start: calc(#{$desktop-nice-padding} - 0.75em);
     margin-inline-end: $desktop-nice-padding;
@@ -34,7 +35,7 @@
   transition: transform 1s;
   padding: theme('spacing.1');
 
-  @include media-breakpoint-down(xs) {
+  @include mixin.media-breakpoint-down(xs) {
     width: 100%;
 
     &:not(:first-child) {
@@ -42,7 +43,7 @@
     }
   }
 
-  @include media-breakpoint-up(sm) {
+  @include mixin.media-breakpoint-up(sm) {
     padding: theme('spacing.[2.5]');
     margin-inline-end: 0;
 
@@ -54,7 +55,7 @@
   &.footer__container--hidden {
     transform: translateY(100%);
 
-    @include media-breakpoint-down(xs) {
+    @include mixin.media-breakpoint-down(xs) {
       display: none;
     }
   }
@@ -71,7 +72,7 @@
     margin: 0;
   }
 
-  @include media-breakpoint-up(sm) {
+  @include mixin.media-breakpoint-up(sm) {
     margin-inline-end: theme('spacing[1.5]');
     align-items: center;
   }
@@ -81,7 +82,7 @@
 .footer .actions {
   width: 100%;
 
-  @include media-breakpoint-up(sm) {
+  @include mixin.media-breakpoint-up(sm) {
     width: theme('spacing.64');
   }
 
@@ -102,7 +103,7 @@
       margin-inline-start: initial;
     }
 
-    @include media-breakpoint-up(sm) {
+    @include mixin.media-breakpoint-up(sm) {
       min-width: theme('spacing.80');
       width: max-content;
 
