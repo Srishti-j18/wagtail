@@ -302,10 +302,13 @@ class TestDocumentIndexView(WagtailTestUtils, TestCase):
 
 
 class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
+    from wagtail.search.backends import get_search_backend
+
     def setUp(self):
         Collection.add_root(name="Root")
         self.login()
-
+        self.search_backend = get_search_backend()
+ 
     def get(self, params={}):
         return self.client.get(reverse("wagtaildocs:index"), params)
 
@@ -371,6 +374,38 @@ class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
         response = self.get({"tag": "one", "q": "test"})
         self.assertEqual(response.context["page_obj"].paginator.count, 2)
 
+    
+    def test_filter_by_created_at(self):
+        # Reset the search index
+        self.search_backend.reset_index()
+        self.search_backend.add_type(models.Document)
+
+        # Add  documents with different creation dates
+        doc1 = models.Document.objects.create(created_at="2025-01-04")
+        doc2 = models.Document.objects.create(created_at="2025-01-02")
+        doc3 = models.Document.objects.create(created_at="2025-01-03")
+        doc4 = models.Document.objects.create(created_at="2025-01-01")
+
+        # Index the documents
+        self.search_backend.add(doc1)
+        self.search_backend.add(doc2)
+        self.search_backend.add(doc3)
+        self.search_backend.add(doc4)
+        self.search_backend.refresh_index()
+
+        # Search and filter by created_at
+        results = self.search_backend.search(
+            None,
+            models.Document,
+            filters={"created_at": "2025-01-01"},
+        )
+
+        # Check
+        self.assertEqual(len(results), 4)
+        self.assertTrue(results[0].id, doc4.id)
+        self.assertTrue(results[1].id, doc2.id)
+        self.assertTrue(results[2].id, doc3.id)
+        self.assertTrue(results[3].id, doc1.id)
 
 class TestDocumentIndexResultsView(WagtailTestUtils, TransactionTestCase):
     def setUp(self):
