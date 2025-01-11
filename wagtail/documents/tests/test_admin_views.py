@@ -14,7 +14,6 @@ from django.utils.text import capfirst
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.documents import get_document_model, models
 from wagtail.documents.tests.utils import get_test_document_file
-from wagtail.test.utils.timestamps import local_datetime
 from wagtail.models import (
     Collection,
     GroupCollectionPermission,
@@ -31,6 +30,7 @@ from wagtail.test.testapp.models import (
 )
 from wagtail.test.utils import WagtailTestUtils
 from wagtail.test.utils.template_tests import AdminTemplateTestUtils
+from wagtail.test.utils.timestamps import local_datetime
 
 
 class TestDocumentIndexView(WagtailTestUtils, TestCase):
