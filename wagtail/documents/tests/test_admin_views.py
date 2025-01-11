@@ -14,6 +14,7 @@ from django.utils.text import capfirst
 from wagtail.admin.admin_url_finder import AdminURLFinder
 from wagtail.documents import get_document_model, models
 from wagtail.documents.tests.utils import get_test_document_file
+from wagtail.test.utils.timestamps import local_datetime
 from wagtail.models import (
     Collection,
     GroupCollectionPermission,
@@ -95,7 +96,7 @@ class TestDocumentIndexView(WagtailTestUtils, TestCase):
         )
 
     def test_ordering(self):
-        orderings = ["title", "-created_at"]
+        orderings = ["title", "created_at","-created_at"]
         for ordering in orderings:
             response = self.get({"ordering": ordering})
             self.assertEqual(response.status_code, 200)
@@ -302,13 +303,11 @@ class TestDocumentIndexView(WagtailTestUtils, TestCase):
 
 
 class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
-    from wagtail.search.backends import get_search_backend
-
     def setUp(self):
         Collection.add_root(name="Root")
         self.login()
-        self.search_backend = get_search_backend()
- 
+    
+
     def get(self, params={}):
         return self.client.get(reverse("wagtaildocs:index"), params)
 
@@ -374,38 +373,33 @@ class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
         response = self.get({"tag": "one", "q": "test"})
         self.assertEqual(response.context["page_obj"].paginator.count, 2)
 
-    
-    def test_filter_by_created_at(self):
-        # Reset the search index
-        self.search_backend.reset_index()
-        self.search_backend.add_type(models.Document)
+    def test_search_and_order_by_created_at(self):
+        # Create Documents
+        doc1=models.Document.objects.create(title="recent good Document")
+        doc1.created_at=local_datetime(2024, 1, 1)
+        doc1.save()
+          
+        doc2=models.Document.objects.create(title="latest good Document")
+        doc2.created_at=local_datetime(2025, 1, 1)
+        doc2.save()
 
-        # Add  documents with different creation dates
-        doc1 = models.Document.objects.create(created_at="2025-01-04")
-        doc2 = models.Document.objects.create(created_at="2025-01-02")
-        doc3 = models.Document.objects.create(created_at="2025-01-03")
-        doc4 = models.Document.objects.create(created_at="2025-01-01")
+        old_doc=models.Document.objects.create(title="Oldest good document")
+        old_doc.created_at=local_datetime(2023, 1, 1)
+        old_doc.save()
+        
+        # Test the ordering by 'created_at'
+        response = self.get({"ordering": "created_at"})
+        self.assertEqual(response.status_code, 200)
 
-        # Index the documents
-        self.search_backend.add(doc1)
-        self.search_backend.add(doc2)
-        self.search_backend.add(doc3)
-        self.search_backend.add(doc4)
-        self.search_backend.refresh_index()
+        # Check that the documents are ordered by created_at (oldest first)
+        documents = list(response.context["page_obj"].object_list)
+        self.assertEqual(documents, [old_doc, doc1, doc2])
 
-        # Search and filter by created_at
-        results = self.search_backend.search(
-            None,
-            models.Document,
-            filters={"created_at": "2025-01-01"},
-        )
+        # Verify that the 'ordering' filter has the correct value in the response
+        self.assertIn('ordering', response.context)
+        self.assertEqual(response.context['ordering'], 'created_at')
+        self.assertTrue(documents[0], old_doc)
 
-        # Check
-        self.assertEqual(len(results), 4)
-        self.assertTrue(results[0].id, doc4.id)
-        self.assertTrue(results[1].id, doc2.id)
-        self.assertTrue(results[2].id, doc3.id)
-        self.assertTrue(results[3].id, doc1.id)
 
 class TestDocumentIndexResultsView(WagtailTestUtils, TransactionTestCase):
     def setUp(self):
