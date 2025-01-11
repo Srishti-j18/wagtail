@@ -386,9 +386,9 @@ class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
         old_doc.created_at = local_datetime(2023, 1, 1)
         old_doc.save()
 
-        # Test the ordering by 'created_at'
-        response = self.get({"ordering": "created_at"})
+        response = self.get({"q": "good", "ordering": "created_at"})
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["query_string"], "good")
 
         # Check that the documents are ordered by created_at (oldest first)
         documents = list(response.context["page_obj"].object_list)
