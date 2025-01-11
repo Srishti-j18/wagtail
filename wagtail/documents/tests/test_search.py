@@ -1,19 +1,21 @@
 import unittest
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
 from wagtail.documents import models
-from wagtail.search.backends import get_search_backend
 from wagtail.test.utils import WagtailTestUtils
 
 
 @override_settings(_WAGTAILSEARCH_FORCE_AUTO_UPDATE=["elasticsearch"])
 class TestIssue613(WagtailTestUtils, TestCase):
     def get_elasticsearch_backend(self):
+        from django.conf import settings
+
+        from wagtail.search.backends import get_search_backend
+
         if "elasticsearch" not in settings.WAGTAILSEARCH_BACKENDS:
             raise unittest.SkipTest("No elasticsearch backend active")
 
