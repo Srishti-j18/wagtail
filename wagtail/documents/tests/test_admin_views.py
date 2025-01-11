@@ -96,7 +96,7 @@ class TestDocumentIndexView(WagtailTestUtils, TestCase):
         )
 
     def test_ordering(self):
-        orderings = ["title", "created_at","-created_at"]
+        orderings = ["title", "created_at", "-created_at"]
         for ordering in orderings:
             response = self.get({"ordering": ordering})
             self.assertEqual(response.status_code, 200)
@@ -306,7 +306,6 @@ class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
     def setUp(self):
         Collection.add_root(name="Root")
         self.login()
-    
 
     def get(self, params={}):
         return self.client.get(reverse("wagtaildocs:index"), params)
@@ -375,18 +374,18 @@ class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
 
     def test_search_and_order_by_created_at(self):
         # Create Documents
-        doc1=models.Document.objects.create(title="recent good Document")
-        doc1.created_at=local_datetime(2024, 1, 1)
+        doc1 = models.Document.objects.create(title="recent good Document")
+        doc1.created_at = local_datetime(2024, 1, 1)
         doc1.save()
-          
-        doc2=models.Document.objects.create(title="latest good Document")
-        doc2.created_at=local_datetime(2025, 1, 1)
+
+        doc2 = models.Document.objects.create(title="latest good Document")
+        doc2.created_at = local_datetime(2025, 1, 1)
         doc2.save()
 
-        old_doc=models.Document.objects.create(title="Oldest good document")
-        old_doc.created_at=local_datetime(2023, 1, 1)
+        old_doc = models.Document.objects.create(title="Oldest good document")
+        old_doc.created_at = local_datetime(2023, 1, 1)
         old_doc.save()
-        
+
         # Test the ordering by 'created_at'
         response = self.get({"ordering": "created_at"})
         self.assertEqual(response.status_code, 200)
@@ -396,8 +395,8 @@ class TestDocumentIndexViewSearch(WagtailTestUtils, TransactionTestCase):
         self.assertEqual(documents, [old_doc, doc1, doc2])
 
         # Verify that the 'ordering' filter has the correct value in the response
-        self.assertIn('ordering', response.context)
-        self.assertEqual(response.context['ordering'], 'created_at')
+        self.assertIn("ordering", response.context)
+        self.assertEqual(response.context["ordering"], "created_at")
         self.assertTrue(documents[0], old_doc)
 
 
